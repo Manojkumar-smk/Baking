@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom'
 import { useFeaturedProducts } from '@/hooks/useProducts'
 import ProductGrid from '@/components/products/ProductGrid/ProductGrid'
+import { useCart } from '@/contexts/CartContext'
 import styles from './HomePage.module.css'
 
 const HomePage = () => {
   const { products, loading } = useFeaturedProducts(8)
+  const { addToCart } = useCart()
 
-  const handleAddToCart = (product: any) => {
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', product)
-    alert(`Added ${product.name} to cart!`)
+  const handleAddToCart = async (product: any) => {
+    try {
+      await addToCart(product, 1)
+    } catch (error) {
+      // Error is handled by CartContext
+    }
   }
 
   return (

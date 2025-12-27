@@ -1,19 +1,24 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useProduct } from '@/hooks/useProducts'
+import { useCart } from '@/contexts/CartContext'
 import styles from './ProductDetailsPage.module.css'
 
 const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>()
   const { product, loading, error } = useProduct(productId)
+  const { addToCart } = useCart()
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (product && product.in_stock) {
-      // TODO: Implement add to cart functionality
-      console.log('Add to cart:', { product, quantity })
-      alert(`Added ${quantity} x ${product.name} to cart!`)
+      try {
+        await addToCart(product, quantity)
+        setQuantity(1) // Reset quantity after adding
+      } catch (error) {
+        // Error is handled by CartContext
+      }
     }
   }
 

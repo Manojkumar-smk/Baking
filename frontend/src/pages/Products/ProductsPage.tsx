@@ -4,6 +4,7 @@ import { Product, Category } from '@/types/product.types'
 import { useProducts } from '@/hooks/useProducts'
 import productService from '@/services/productService'
 import ProductGrid from '@/components/products/ProductGrid/ProductGrid'
+import { useCart } from '@/contexts/CartContext'
 import styles from './ProductsPage.module.css'
 
 const ProductsPage = () => {
@@ -55,10 +56,14 @@ const ProductsPage = () => {
     setCurrentPage(1)
   }
 
-  const handleAddToCart = (product: Product) => {
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', product)
-    alert(`Added ${product.name} to cart!`)
+  const { addToCart } = useCart()
+
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart(product, 1)
+    } catch (error) {
+      // Error is handled by CartContext
+    }
   }
 
   return (
