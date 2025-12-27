@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import authService, { RegisterRequest } from '@/services/authService'
 
 interface User {
   id: string
@@ -13,7 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (data: any) => Promise<void>
+  register: (data: RegisterRequest) => Promise<void>
   logout: () => void
 }
 
@@ -21,25 +22,49 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Check for existing auth on mount
+  useEffect(() => {
+    const initAuth = () => {
+      const token = authService.getAccessToken()
+      if (token) {
+        // TODO: Validate token and fetch user data
+        // For now, we'll just mark as not loading
+      }
+      setIsLoading(false)
+    }
+    initAuth()
+  }, [])
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
-    // TODO: Implement actual login logic
-    console.log('Login:', email, password)
-    setIsLoading(false)
+    try {
+      const response = await authService.login({ email, password })
+      setUser({
+        id: response.user.id,
+        email: response.user.email,
+        firstName: response.user.first_name,
+        lastName: response.user.last_name,
+        role: response.user.role,
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const register = async (data: any) => {
+  const register = async (data: RegisterRequest) => {
     setIsLoading(true)
-    // TODO: Implement actual registration logic
-    console.log('Register:', data)
-    setIsLoading(false)
+    try {
+      await authService.register(data)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const logout = () => {
+    authService.logout()
     setUser(null)
-    // TODO: Clear tokens
   }
 
   const value = {
