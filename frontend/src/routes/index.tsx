@@ -15,6 +15,8 @@ import ProfilePage from '@/pages/Profile/ProfilePage'
 import OrderHistoryPage from '@/pages/Orders/OrderHistoryPage'
 import OrderDetailsPage from '@/pages/Orders/OrderDetailsPage'
 import AdminProducts from '@/pages/Admin/AdminProducts'
+import AdminDashboard from '@/pages/Admin/AdminDashboard'
+import AdminOrders from '@/pages/Admin/AdminOrders'
 
 // Placeholder component for pages not yet implemented
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -76,7 +78,7 @@ function Routes() {
           path="admin/dashboard"
           element={
             <ProtectedRoute requireAdmin>
-              <PlaceholderPage title="Admin Dashboard" />
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
@@ -84,7 +86,7 @@ function Routes() {
           path="admin/orders"
           element={
             <ProtectedRoute requireAdmin>
-              <PlaceholderPage title="Admin Orders" />
+              <AdminOrders />
             </ProtectedRoute>
           }
         />
