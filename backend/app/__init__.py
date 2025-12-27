@@ -38,17 +38,19 @@ def create_app(config_name=None):
 
 def register_blueprints(app):
     """Register Flask blueprints (API routes)"""
-    from app.api import auth, products, categories, cart, orders, payments, users, admin
+    from app.api import auth, products, categories, cart, users, admin
+    from app.api.orders import orders_bp
+    from app.api.payments import payments_bp
 
-    # API v1
+    # API v1 - Note: Some blueprints already have url_prefix set
     api_prefix = '/api/v1'
 
     app.register_blueprint(auth.bp, url_prefix=f'{api_prefix}/auth')
     app.register_blueprint(products.bp, url_prefix=f'{api_prefix}/products')
     app.register_blueprint(categories.bp, url_prefix=f'{api_prefix}/categories')
     app.register_blueprint(cart.bp, url_prefix=f'{api_prefix}/cart')
-    app.register_blueprint(orders.bp, url_prefix=f'{api_prefix}/orders')
-    app.register_blueprint(payments.bp, url_prefix=f'{api_prefix}/payments')
+    app.register_blueprint(orders_bp)  # Has url_prefix='/api/v1/orders' in blueprint
+    app.register_blueprint(payments_bp)  # Has url_prefix='/api/v1/payments' in blueprint
     app.register_blueprint(users.bp, url_prefix=f'{api_prefix}/users')
     app.register_blueprint(admin.bp, url_prefix=f'{api_prefix}/admin')
 
