@@ -6,6 +6,7 @@ import HomePage from '@/pages/Home/HomePage'
 import ProductsPage from '@/pages/Products/ProductsPage'
 import ProductDetailsPage from '@/pages/Products/ProductDetailsPage'
 import CartPage from '@/pages/Cart/CartPage'
+import CheckoutPage from '@/pages/Checkout/CheckoutPage'
 import AdminProducts from '@/pages/Admin/AdminProducts'
 
 // Placeholder component for pages not yet implemented
@@ -24,7 +25,8 @@ function Routes() {
         <Route path="products" element={<ProductsPage />} />
         <Route path="products/:productId" element={<ProductDetailsPage />} />
         <Route path="cart" element={<CartPage />} />
-        <Route path="checkout" element={<PlaceholderPage title="Checkout" />} />
+        <Route path="checkout" element={<CheckoutPage />} />
+        <Route path="checkout/success" element={<PlaceholderPage title="Order Success" />} />
         <Route path="login" element={<PlaceholderPage title="Login" />} />
         <Route path="register" element={<PlaceholderPage title="Register" />} />
         <Route path="profile" element={<PlaceholderPage title="Profile" />} />

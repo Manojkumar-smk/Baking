@@ -1,0 +1,158 @@
+.summary {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 2rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.items {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemImage {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.itemImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.itemDetails {
+  flex: 1;
+}
+
+.itemName {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.itemQuantity {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.itemPrice {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.itemTotal {
+  font-weight: 600;
+  color: #333;
+  align-self: center;
+}
+
+.divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 1rem 0;
+}
+
+.totals {
+  margin-top: 1rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  color: #666;
+}
+
+.grandTotal {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0.5rem;
+}
+
+.freeShipping {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.shippingNote {
+  font-size: 0.85rem;
+  color: #8b4513;
+  padding: 0.75rem;
+  background: #fff3cd;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
+.secureCheckout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.shieldIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #28a745;
+}
+
+@media (max-width: 768px) {
+  .summary {
+    position: static;
+    margin-top: 2rem;
+  }
+
+  .items {
+    max-height: 200px;
+  }
+
+  .itemImage {
+    width: 50px;
+    height: 50px;
+  }
+}
