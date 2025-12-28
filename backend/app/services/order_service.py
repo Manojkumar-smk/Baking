@@ -109,7 +109,7 @@ class OrderService:
                 product_id=product.id,
                 product_name=product.name,
                 product_sku=product.sku,
-                product_image_url=product.image_url,
+                product_image=product.image_url,
                 quantity=cart_item.quantity,
                 unit_price=float(product.price),
                 total_price=float(product.price) * cart_item.quantity

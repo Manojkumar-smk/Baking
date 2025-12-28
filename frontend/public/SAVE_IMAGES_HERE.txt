@@ -1,0 +1,20 @@
+IMPORTANT: Save Your Images Here
+==================================
+
+Please save the following images in this folder (frontend/public/):
+
+1. LOGO (Image 6 - Brown bear with "Cookie Cubs"):
+   - Filename: logo.png
+   - Location: frontend/public/logo.png
+   - This will appear in the website header
+
+2. CHATBOT (Image 7 - Orange fox chef):
+   - Filename: chef-cookie.png
+   - Location: frontend/public/chef-cookie.png
+   - This will appear in the chatbot
+
+After saving both images:
+1. Run: docker-compose up --build -d frontend
+2. Refresh your browser (Ctrl+F5)
+3. You'll see both images appear!
+

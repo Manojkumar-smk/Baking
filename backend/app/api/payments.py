@@ -1,5 +1,5 @@
 """
-Payment API endpoints
+Payment API endpoints for Razorpay integration
 """
 from flask import Blueprint, request, jsonify, current_app
 from app.services.payment_service import PaymentService
@@ -8,22 +8,25 @@ from app.utils.decorators import token_required
 payments_bp = Blueprint('payments', __name__, url_prefix='/api/v1/payments')
 
 
-@payments_bp.route('/create-intent', methods=['POST'])
-def create_payment_intent():
+@payments_bp.route('/create-order', methods=['POST'])
+def create_payment_order():
     """
-    Create a Stripe PaymentIntent for an order
+    Create a Razorpay Order
 
     Request body:
         {
             "order_id": "order-uuid",
-            "amount": 29.99
+            "amount": 299.99,
+            "currency": "INR"  // optional, defaults to INR
         }
 
     Returns:
         {
-            "client_secret": "pi_xxx_secret_xxx",
-            "payment_intent_id": "pi_xxx",
-            "payment_id": "payment-uuid"
+            "razorpay_order_id": "order_xxx",
+            "amount": 29999,
+            "currency": "INR",
+            "payment_id": "payment-uuid",
+            "key_id": "rzp_test_xxx"
         }
     """
     try:
@@ -31,6 +34,7 @@ def create_payment_intent():
 
         order_id = data.get('order_id')
         amount = data.get('amount')
+        currency = data.get('currency', 'INR')
 
         if not order_id or not amount:
             return jsonify({'error': 'order_id and amount are required'}), 400
@@ -43,10 +47,11 @@ def create_payment_intent():
         except (ValueError, TypeError):
             return jsonify({'error': 'Invalid amount'}), 400
 
-        result = PaymentService.create_payment_intent(
+        result = PaymentService.create_order(
             order_id=order_id,
             amount=amount,
-            metadata=data.get('metadata')
+            currency=currency,
+            notes=data.get('notes')
         )
 
         return jsonify(result), 200
@@ -54,24 +59,26 @@ def create_payment_intent():
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
     except Exception as e:
-        current_app.logger.error(f'Error creating payment intent: {str(e)}')
+        current_app.logger.error(f'Error creating Razorpay order: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
 
 
-@payments_bp.route('/confirm', methods=['POST'])
-def confirm_payment():
+@payments_bp.route('/verify', methods=['POST'])
+def verify_payment():
     """
-    Confirm a payment and update order status
+    Verify and confirm a Razorpay payment
 
     Request body:
         {
-            "payment_intent_id": "pi_xxx"
+            "razorpay_order_id": "order_xxx",
+            "razorpay_payment_id": "pay_xxx",
+            "razorpay_signature": "signature_xxx"
         }
 
     Returns:
         {
             "payment_id": "payment-uuid",
-            "status": "succeeded",
+            "status": "captured",
             "order_id": "order-uuid",
             "order_number": "ORD-20240101-ABC123"
         }
@@ -79,35 +86,44 @@ def confirm_payment():
     try:
         data = request.get_json()
 
-        payment_intent_id = data.get('payment_intent_id')
+        razorpay_order_id = data.get('razorpay_order_id')
+        razorpay_payment_id = data.get('razorpay_payment_id')
+        razorpay_signature = data.get('razorpay_signature')
 
-        if not payment_intent_id:
-            return jsonify({'error': 'payment_intent_id is required'}), 400
+        if not all([razorpay_order_id, razorpay_payment_id, razorpay_signature]):
+            return jsonify({
+                'error': 'razorpay_order_id, razorpay_payment_id, and razorpay_signature are required'
+            }), 400
 
-        result = PaymentService.confirm_payment(payment_intent_id)
+        result = PaymentService.confirm_payment(
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        )
 
         return jsonify(result), 200
 
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
     except Exception as e:
-        current_app.logger.error(f'Error confirming payment: {str(e)}')
+        current_app.logger.error(f'Error verifying payment: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
 
 
 @payments_bp.route('/webhook', methods=['POST'])
-def stripe_webhook():
+def razorpay_webhook():
     """
-    Handle Stripe webhook events
+    Handle Razorpay webhook events
 
-    Stripe sends events like:
-    - payment_intent.succeeded
-    - payment_intent.payment_failed
-    - charge.refunded
+    Razorpay sends events like:
+    - payment.captured
+    - payment.failed
+    - payment.authorized
+    - refund.created
     """
     try:
         payload = request.data
-        signature = request.headers.get('Stripe-Signature')
+        signature = request.headers.get('X-Razorpay-Signature')
 
         if not signature:
             return jsonify({'error': 'Missing signature'}), 400
@@ -134,8 +150,9 @@ def get_payment(payment_id):
         {
             "id": "payment-uuid",
             "order_id": "order-uuid",
-            "amount": 29.99,
-            "status": "succeeded",
+            "razorpay_order_id": "order_xxx",
+            "amount": 299.99,
+            "status": "captured",
             ...
         }
     """
@@ -160,15 +177,17 @@ def create_refund(payment_id):
 
     Request body:
         {
-            "amount": 10.00,  // Optional, full refund if not provided
-            "reason": "customer request"  // Optional
+            "amount": 100.00,  // Optional, full refund if not provided
+            "notes": {         // Optional
+                "reason": "customer request"
+            }
         }
 
     Returns:
         {
-            "refund_id": "re_xxx",
-            "status": "succeeded",
-            "amount": 10.00
+            "refund_id": "rfnd_xxx",
+            "status": "processed",
+            "amount": 100.00
         }
     """
     try:
@@ -181,7 +200,7 @@ def create_refund(payment_id):
         data = request.get_json() or {}
 
         amount = data.get('amount')
-        reason = data.get('reason')
+        notes = data.get('notes')
 
         # Validate amount if provided
         if amount is not None:
@@ -195,7 +214,7 @@ def create_refund(payment_id):
         result = PaymentService.create_refund(
             payment_id=payment_id,
             amount=amount,
-            reason=reason
+            notes=notes
         )
 
         return jsonify(result), 200

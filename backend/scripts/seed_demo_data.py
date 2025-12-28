@@ -38,7 +38,7 @@ def clear_data():
     User.query.delete()
 
     db.session.commit()
-    print("✓ Data cleared")
+    print("[+] Data cleared")
 
 
 def seed_users():
@@ -84,10 +84,10 @@ def seed_users():
         user.set_password(user_data['password'])
         db.session.add(user)
         created_users[user_data['email']] = user
-        print(f"  ✓ Created {user_data['role']}: {user_data['email']} (password: {user_data['password']})")
+        print(f"  [+] Created {user_data['role']}: {user_data['email']} (password: {user_data['password']})")
 
     db.session.commit()
-    print(f"✓ Created {len(users)} users")
+    print(f"[+] Created {len(users)} users")
     return created_users
 
 
@@ -104,16 +104,19 @@ def seed_categories():
 
     categories = {}
     for cat_data in categories_data:
+        # Generate slug from name (lowercase with hyphens)
+        slug = cat_data['name'].lower().replace(' ', '-')
         category = Category(
             name=cat_data['name'],
+            slug=slug,
             description=cat_data['description']
         )
         db.session.add(category)
         categories[cat_data['name']] = category
-        print(f"  ✓ Created category: {cat_data['name']}")
+        print(f"  [+] Created category: {cat_data['name']}")
 
     db.session.commit()
-    print(f"✓ Created {len(categories_data)} categories")
+    print(f"[+] Created {len(categories_data)} categories")
     return categories
 
 
@@ -248,8 +251,11 @@ def seed_products(categories):
     products = []
     for prod_data in products_data:
         category = categories.get(prod_data['category'])
+        # Generate slug from name (lowercase with hyphens)
+        slug = prod_data['name'].lower().replace(' ', '-')
         product = Product(
             name=prod_data['name'],
+            slug=slug,
             description=prod_data['description'],
             price=Decimal(str(prod_data['price'])),
             category_id=category.id if category else None,
@@ -263,10 +269,10 @@ def seed_products(categories):
         )
         db.session.add(product)
         products.append(product)
-        print(f"  ✓ Created product: {prod_data['name']} (${prod_data['price']}, Stock: {prod_data['stock_quantity']})")
+        print(f"  [+] Created product: {prod_data['name']} (${prod_data['price']}, Stock: {prod_data['stock_quantity']})")
 
     db.session.commit()
-    print(f"✓ Created {len(products_data)} products")
+    print(f"[+] Created {len(products_data)} products")
     return products
 
 
@@ -424,7 +430,7 @@ def seed_orders(users, products):
                 product_id=item_data['product'].id,
                 product_name=item_data['product'].name,
                 product_sku=item_data['product'].sku,
-                product_image_url=item_data['product'].image_url,
+                product_image=item_data['product'].image_url,
                 quantity=item_data['quantity'],
                 unit_price=item_data['product'].price,
                 total_price=item_data['product'].price * item_data['quantity']
@@ -436,23 +442,25 @@ def seed_orders(users, products):
             payment = Payment(
                 order_id=order.id,
                 amount=total_amount,
-                currency='usd',
-                status='succeeded',
+                currency='INR',
+                status='captured',
                 payment_method='card',
-                stripe_payment_intent_id=f'pi_demo_{order.id}',
+                razorpay_order_id=f'order_demo_{order.id}',
+                razorpay_payment_id=f'pay_demo_{order.id}',
+                succeeded_at=order.paid_at or order.created_at,
                 created_at=order.paid_at or order.created_at
             )
             db.session.add(payment)
 
         orders.append(order)
-        print(f"  ✓ Created order: {order.order_number} ({order_data['status']}, ${total_amount})")
+        print(f"  [+] Created order: {order.order_number} ({order_data['status']}, ${total_amount})")
 
     db.session.commit()
-    print(f"✓ Created {len(orders)} orders")
+    print(f"[+] Created {len(orders)} orders")
     return orders
 
 
-def main():
+def main(force=False):
     """Main seeding function"""
     app = create_app()
 
@@ -462,10 +470,13 @@ def main():
         print("=" * 60)
 
         # Clear existing data
-        response = input("\n⚠️  This will DELETE all existing data. Continue? (yes/no): ")
-        if response.lower() != 'yes':
-            print("Seeding cancelled.")
-            return
+        if not force:
+            response = input("\nWARNING: This will DELETE all existing data. Continue? (yes/no): ")
+            if response.lower() != 'yes':
+                print("Seeding cancelled.")
+                return
+        else:
+            print("\nForce flag detected, skipping confirmation...")
 
         clear_data()
 
@@ -476,9 +487,9 @@ def main():
         orders = seed_orders(users, products)
 
         print("\n" + "=" * 60)
-        print("✓ DEMO DATA SEEDED SUCCESSFULLY!")
+        print("[+] DEMO DATA SEEDED SUCCESSFULLY!")
         print("=" * 60)
-        print("\n📝 Demo Accounts:")
+        print("\nDemo Accounts:")
         print("-" * 60)
         print("Admin Account:")
         print("  Email: admin@cookieshop.com")
@@ -490,19 +501,21 @@ def main():
         print("  Email: jane@example.com")
         print("  Password: jane123")
         print("-" * 60)
-        print(f"\n📊 Summary:")
-        print(f"  • {len(users)} users created")
-        print(f"  • {len(categories)} categories created")
-        print(f"  • {len(products)} products created")
-        print(f"  • {len(orders)} orders created")
-        print("\n💳 For Stripe testing, use test card:")
+        print(f"\nSummary:")
+        print(f"  - {len(users)} users created")
+        print(f"  - {len(categories)} categories created")
+        print(f"  - {len(products)} products created")
+        print(f"  - {len(orders)} orders created")
+        print("\nFor Stripe testing, use test card:")
         print("  Card: 4242 4242 4242 4242")
         print("  Expiry: Any future date (e.g., 12/25)")
         print("  CVC: Any 3 digits (e.g., 123)")
         print("  ZIP: Any 5 digits (e.g., 12345)")
-        print("\n🚀 You can now start testing!")
+        print("\nYou can now start testing!")
         print("=" * 60)
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    force = '--force' in sys.argv or '-f' in sys.argv
+    main(force=force)

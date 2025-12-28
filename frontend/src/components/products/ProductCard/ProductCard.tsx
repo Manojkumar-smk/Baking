@@ -15,12 +15,20 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
     }
   }
 
+  const getImageUrl = (imageUrl: string | null): string | undefined => {
+    if (!imageUrl) return undefined
+    if (imageUrl.startsWith('http')) return imageUrl
+    const apiUrl = import.meta.env.VITE_API_URL
+    const backendUrl = apiUrl.replace('/api/v1', '')
+    return `${backendUrl}${imageUrl}`
+  }
+
   return (
     <Link to={`/products/${product.id}`} className={styles.card}>
       <div className={styles.imageContainer}>
         {product.image_url ? (
           <img
-            src={product.image_url}
+            src={getImageUrl(product.image_url)}
             alt={product.name}
             className={styles.image}
           />

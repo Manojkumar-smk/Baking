@@ -35,11 +35,11 @@ const LoginPage = () => {
     setIsSubmitting(true)
     try {
       await login(data.email, data.password)
-      showToast('Login successful!', 'success')
+      showToast('success', 'Login successful!')
       navigate(from, { replace: true })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setIsSubmitting(false)
     }

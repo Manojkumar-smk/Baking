@@ -63,10 +63,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems(response.items)
       setTotals(response.totals)
 
-      showToast(`Added ${product.name} to cart`, 'success')
+      showToast('success', `Added ${product.name} to cart`)
     } catch (error: any) {
       const message = error.response?.data?.error || 'Failed to add to cart'
-      showToast(message, 'error')
+      showToast('error', message)
       throw error
     } finally {
       setLoading(false)
@@ -83,10 +83,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems(response.items)
       setTotals(response.totals)
 
-      showToast('Cart updated', 'success')
+      showToast('success', 'Cart updated')
     } catch (error: any) {
       const message = error.response?.data?.error || 'Failed to update cart'
-      showToast(message, 'error')
+      showToast('error', message)
       throw error
     } finally {
       setLoading(false)
@@ -102,10 +102,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Refresh cart after removal
       await loadCart()
 
-      showToast('Item removed from cart', 'success')
+      showToast('success', 'Item removed from cart')
     } catch (error: any) {
       const message = error.response?.data?.error || 'Failed to remove item'
-      showToast(message, 'error')
+      showToast('error', message)
       throw error
     } finally {
       setLoading(false)
@@ -127,10 +127,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         total: 0,
       })
 
-      showToast('Cart cleared', 'success')
+      showToast('success', 'Cart cleared')
     } catch (error: any) {
       const message = error.response?.data?.error || 'Failed to clear cart'
-      showToast(message, 'error')
+      showToast('error', message)
       throw error
     } finally {
       setLoading(false)

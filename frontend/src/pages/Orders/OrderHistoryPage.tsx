@@ -25,7 +25,7 @@ const OrderHistoryPage = () => {
       setTotalPages(response.pages)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load orders'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setLoading(false)
     }

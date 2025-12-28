@@ -51,7 +51,7 @@ def create_order():
         data = request.get_json()
 
         # Get user_id if authenticated, otherwise session_id
-        user_id = g.get('current_user', {}).get('id') if hasattr(g, 'current_user') else None
+        user_id = g.current_user.id if hasattr(g, 'current_user') and g.current_user else None
         session_id = get_session_id()
 
         shipping_address = data.get('shipping_address')

@@ -23,11 +23,27 @@
   font-weight: 700;
   text-decoration: none;
   transition: var(--transition-base);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .logo:hover {
   opacity: 0.9;
   transform: scale(1.02);
+}
+
+.logoImage {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: var(--transition-base);
+}
+
+.logoText {
+  color: white;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
 }
 
 .nav {
@@ -115,6 +131,14 @@
   }
 
   .logo {
+    font-size: var(--font-size-xl);
+  }
+
+  .logoImage {
+    height: 50px;
+  }
+
+  .logoText {
     font-size: var(--font-size-xl);
   }
 

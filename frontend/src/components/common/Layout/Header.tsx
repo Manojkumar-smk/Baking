@@ -1,17 +1,31 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCart } from '@/contexts/CartContext'
+import { useState } from 'react'
 import styles from './Header.module.css'
 
 function Header() {
   const { isAuthenticated, user, logout } = useAuth()
   const { itemCount } = useCart()
+  const [logoError, setLogoError] = useState(false)
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
         <Link to="/" className={styles.logo}>
-          🍪 Cookie Shop
+          {!logoError ? (
+            <>
+              <img
+                src="/logo.svg"
+                alt="Cookie Cubs"
+                className={styles.logoImage}
+                onError={() => setLogoError(true)}
+              />
+              <span className={styles.logoText}>Cookie Cubs</span>
+            </>
+          ) : (
+            <span className={styles.logoText}>🍪 Cookie Cubs</span>
+          )}
         </Link>
 
         <nav className={styles.nav}>
@@ -26,7 +40,7 @@ function Header() {
 
           {isAuthenticated ? (
             <>
-              <span className={styles.greeting}>Hello, {user?.first_name}</span>
+              <span className={styles.greeting}>Hello, {user?.firstName}</span>
               {user?.role === 'admin' && (
                 <Link to="/admin/products" className={styles.navLink}>Admin</Link>
               )}

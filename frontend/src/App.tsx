@@ -3,17 +3,19 @@ import { AuthProvider } from '@contexts/AuthContext'
 import { CartProvider } from '@contexts/CartContext'
 import { ToastProvider } from '@contexts/ToastContext'
 import Routes from '@/routes'
+import Chatbot from '@/components/Chatbot/Chatbot'
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <ToastProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <CartProvider>
             <Routes />
-          </ToastProvider>
-        </CartProvider>
-      </AuthProvider>
+            <Chatbot />
+          </CartProvider>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   )
 }

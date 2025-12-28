@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Optional, Tuple, Dict, Any
 from app.database.db import db
 from app.models.cart import Cart
@@ -239,22 +240,22 @@ class CartService:
         Returns:
             Dictionary with subtotal, tax, shipping, total
         """
-        subtotal = sum(item.total_price for item in cart.items)
+        subtotal = sum((item.total_price for item in cart.items), Decimal('0'))
 
         # Calculate tax (example: 10%)
-        tax_rate = 0.10
+        tax_rate = Decimal('0.10')
         tax = subtotal * tax_rate
 
         # Calculate shipping (example: free shipping over $50, else $5)
-        shipping = 0 if subtotal >= 50 else 5
+        shipping = Decimal('0') if subtotal >= Decimal('50') else Decimal('5')
 
         total = subtotal + tax + shipping
 
         return {
-            'subtotal': round(subtotal, 2),
-            'tax': round(tax, 2),
-            'shipping': round(shipping, 2),
-            'total': round(total, 2)
+            'subtotal': float(round(subtotal, 2)),
+            'tax': float(round(tax, 2)),
+            'shipping': float(round(shipping, 2)),
+            'total': float(round(total, 2))
         }
 
     @staticmethod

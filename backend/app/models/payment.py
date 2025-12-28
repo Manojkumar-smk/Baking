@@ -10,23 +10,23 @@ class Payment(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     order_id = db.Column(db.String(36), db.ForeignKey('orders.id', ondelete='CASCADE'), nullable=False)
 
-    # Stripe information
-    stripe_payment_intent_id = db.Column(db.String(255), unique=True, index=True)
-    stripe_charge_id = db.Column(db.String(255))
-    stripe_customer_id = db.Column(db.String(255))
+    # Razorpay information
+    razorpay_order_id = db.Column(db.String(255), unique=True, index=True)
+    razorpay_payment_id = db.Column(db.String(255))
+    razorpay_signature = db.Column(db.String(255))
 
     amount = db.Column(db.Numeric(10, 2), nullable=False)
-    currency = db.Column(db.String(3), default='USD', nullable=False)
+    currency = db.Column(db.String(3), default='INR', nullable=False)
     status = db.Column(db.String(50), default='pending', nullable=False, index=True)
-    # Status values: pending, succeeded, failed, refunded, cancelled
-    payment_method = db.Column(db.String(50))  # card, wallet, etc.
+    # Status values: created, pending, authorized, captured, refunded, failed
+    payment_method = db.Column(db.String(50))  # card, upi, netbanking, wallet, etc.
 
     # Card details (last 4 digits only)
     card_brand = db.Column(db.String(50))
     card_last4 = db.Column(db.String(4))
 
     # Metadata
-    metadata = db.Column(JSONB)
+    payment_metadata = db.Column(JSONB)
     error_message = db.Column(db.Text)
 
     # Timestamps
@@ -48,7 +48,8 @@ class Payment(db.Model):
         return {
             'id': self.id,
             'order_id': self.order_id,
-            'stripe_payment_intent_id': self.stripe_payment_intent_id,
+            'razorpay_order_id': self.razorpay_order_id,
+            'razorpay_payment_id': self.razorpay_payment_id,
             'amount': float(self.amount),
             'currency': self.currency,
             'status': self.status,

@@ -29,7 +29,7 @@ const OrderDetailsPage = () => {
       setOrder(orderData)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load order'
-      showToast(message, 'error')
+      showToast('error', message)
       navigate('/orders')
     } finally {
       setLoading(false)
@@ -43,11 +43,11 @@ const OrderDetailsPage = () => {
     setCancelling(true)
     try {
       await orderService.cancelOrder(orderId, 'Customer requested cancellation')
-      showToast('Order cancelled successfully', 'success')
+      showToast('success', 'Order cancelled successfully')
       await fetchOrder()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to cancel order'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setCancelling(false)
     }

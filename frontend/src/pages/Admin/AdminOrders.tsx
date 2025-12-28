@@ -48,7 +48,7 @@ const AdminOrders = () => {
       setTotalPages(response.pages)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load orders'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setLoading(false)
     }
@@ -59,14 +59,14 @@ const AdminOrders = () => {
     setUpdating(true)
     try {
       await adminService.updateOrderStatus(selectedOrder.id, newStatus)
-      showToast('Order status updated', 'success')
+      showToast('success', 'Order status updated')
       setShowStatusModal(false)
       setSelectedOrder(null)
       setNewStatus('')
       await fetchOrders()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to update status'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setUpdating(false)
     }
@@ -81,7 +81,7 @@ const AdminOrders = () => {
         trackingNumber,
         trackingUrl || undefined
       )
-      showToast('Tracking information updated', 'success')
+      showToast('success', 'Tracking information updated')
       setShowTrackingModal(false)
       setSelectedOrder(null)
       setTrackingNumber('')
@@ -89,7 +89,7 @@ const AdminOrders = () => {
       await fetchOrders()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to update tracking'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setUpdating(false)
     }

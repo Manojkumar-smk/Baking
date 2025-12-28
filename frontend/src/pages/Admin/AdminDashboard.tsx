@@ -51,7 +51,7 @@ const AdminDashboard = () => {
       setStats(data)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load dashboard'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setLoading(false)
     }

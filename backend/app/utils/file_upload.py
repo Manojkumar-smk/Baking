@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from flask import current_app
 from typing import Tuple, Optional
+from app.services.image_service import ImageService
 
 
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
@@ -88,78 +89,62 @@ def generate_unique_filename(original_filename: str) -> str:
 
 def save_product_image(file: FileStorage, product_id: str = None) -> Tuple[Optional[str], Optional[str]]:
     """
-    Save uploaded product image to disk
+    Save uploaded product image to Cloudinary
 
     Args:
         file: Uploaded file from request
         product_id: Optional product ID for organizing files
 
     Returns:
-        Tuple of (file_path, error_message)
-        file_path is the relative path to the saved file
+        Tuple of (cloudinary_url, error_message)
+        cloudinary_url is the Cloudinary URL to the uploaded image
     """
-    # Validate file
-    is_valid, error = validate_image_file(file)
-    if not is_valid:
-        return None, error
-
-    # Secure the filename
-    original_filename = secure_filename(file.filename)
-
-    # Generate unique filename
-    unique_filename = generate_unique_filename(original_filename)
-
-    # Create upload directory if it doesn't exist
-    upload_dir = os.path.join(
-        current_app.config.get('UPLOAD_FOLDER', 'static/uploads'),
-        'products'
-    )
-
-    # Create full path
-    full_upload_dir = os.path.join(current_app.root_path, upload_dir)
-    os.makedirs(full_upload_dir, exist_ok=True)
-
-    # Save file
-    file_path = os.path.join(full_upload_dir, unique_filename)
+    # Use Cloudinary service to upload image
     try:
-        file.save(file_path)
+        # Generate unique product ID if not provided
+        if not product_id:
+            product_id = str(uuid.uuid4())
+
+        # Upload to Cloudinary
+        result = ImageService.upload_product_image(file, product_id)
+
+        # Return the medium-sized optimized URL
+        return result['medium_url'], None
+
+    except ValueError as e:
+        # Validation error
+        return None, str(e)
     except Exception as e:
-        return None, f'Failed to save file: {str(e)}'
-
-    # Return relative path for database storage
-    relative_path = f'/static/uploads/products/{unique_filename}'
-
-    return relative_path, None
+        current_app.logger.error(f'Cloudinary upload error: {str(e)}')
+        return None, f'Failed to upload image: {str(e)}'
 
 
-def delete_product_image(image_path: str) -> bool:
+def delete_product_image(image_url: str) -> bool:
     """
-    Delete product image from disk
+    Delete product image from Cloudinary
 
     Args:
-        image_path: Relative path to the image (e.g., /static/uploads/products/image.jpg)
+        image_url: Cloudinary URL of the image
 
     Returns:
         True if deleted successfully, False otherwise
     """
-    if not image_path:
+    if not image_url:
         return False
 
     try:
-        # Convert relative path to absolute path
-        # Remove leading slash if present
-        clean_path = image_path.lstrip('/')
+        # Extract public_id from Cloudinary URL
+        public_id = ImageService.extract_public_id_from_url(image_url)
 
-        full_path = os.path.join(current_app.root_path, clean_path)
+        if not public_id:
+            current_app.logger.warning(f'Not a Cloudinary URL, skipping deletion: {image_url}')
+            return False
 
-        if os.path.exists(full_path):
-            os.remove(full_path)
-            return True
-
-        return False
+        # Delete from Cloudinary
+        return ImageService.delete_product_image(public_id)
 
     except Exception as e:
-        current_app.logger.error(f'Failed to delete image {image_path}: {str(e)}')
+        current_app.logger.error(f'Failed to delete image {image_url}: {str(e)}')
         return False
 
 

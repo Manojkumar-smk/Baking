@@ -31,7 +31,7 @@ const CheckoutPage = () => {
     // Redirect to cart if empty
     if (items.length === 0) {
       navigate('/cart')
-      showToast('Your cart is empty', 'error')
+      showToast('error', 'Your cart is empty')
     }
   }, [items, navigate, showToast])
 
@@ -65,10 +65,10 @@ const CheckoutPage = () => {
 
       setClientSecret(client_secret)
       setStep('payment')
-      showToast('Shipping information saved', 'success')
+      showToast('success', 'Shipping information saved')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to process shipping information'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setLoading(false)
     }
@@ -85,19 +85,19 @@ const CheckoutPage = () => {
       // Clear cart
       await clearCart()
 
-      showToast('Payment successful!', 'success')
+      showToast('success', 'Payment successful!')
 
       // Navigate to success page
       navigate(`/checkout/success?order=${orderId}`)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to confirm payment'
-      showToast(message, 'error')
+      showToast('error', message)
       setStep('payment')
     }
   }
 
   const handlePaymentError = (error: string) => {
-    showToast(error, 'error')
+    showToast('error', error)
   }
 
   const handleBackToShipping = () => {

@@ -45,11 +45,11 @@ const RegisterPage = () => {
         email: data.email,
         password: data.password,
       })
-      showToast('Registration successful! Please log in.', 'success')
+      showToast('success', 'Registration successful! Please log in.')
       navigate('/login')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Registration failed'
-      showToast(message, 'error')
+      showToast('error', message)
     } finally {
       setIsSubmitting(false)
     }
